@@ -15,9 +15,14 @@ import numpy as np
 from efficientdet.utils import BBoxTransform, ClipBoxes
 from utils.utils import preprocess, invert_affine, postprocess, STANDARD_COLORS, standard_to_bgr, get_index_label, plot_one_box
 
-compound_coef = 0
+#compound_coef = 0
+compound_coef = 4
 force_input_size = None  # set None to use default size
-img_path = 'test/img.png'
+#img_path = 'test/img.png'
+#img_path = '/Users/hkragh/damgaard-all/0/01-02-2013_HD_11251-11400 76634.jpg'
+#img_path = '/Users/hkragh/damgaard-all/0/01-02-2013_HD_11251-11400 76659.jpg'
+#img_path = '/Users/hkragh/damgaard-all/0/01-02-2013_HD_11251-11400 76715.jpg'
+img_path = '/Users/hkragh/damgaard-all/0/01-02-2013_HD_11251-11400 76738.jpg'
 
 # replace this part with your project's anchor config
 anchor_ratios = [(1.0, 1.0), (1.4, 0.7), (0.7, 1.4)]
@@ -26,7 +31,7 @@ anchor_scales = [2 ** 0, 2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)]
 threshold = 0.2
 iou_threshold = 0.2
 
-use_cuda = True
+use_cuda = False
 use_float16 = False
 cudnn.fastest = True
 cudnn.benchmark = True
@@ -101,34 +106,35 @@ def display(preds, imgs, imshow=True, imwrite=False):
 
 
 out = invert_affine(framed_metas, out)
-display(out, ori_imgs, imshow=False, imwrite=True)
+display(out, ori_imgs, imshow=True, imwrite=False)
 
-print('running speed test...')
-with torch.no_grad():
-    print('test1: model inferring and postprocessing')
-    print('inferring image for 10 times...')
-    t1 = time.time()
-    for _ in range(10):
-        _, regression, classification, anchors = model(x)
+if False:
+    print('running speed test...')
+    with torch.no_grad():
+        print('test1: model inferring and postprocessing')
+        print('inferring image for 10 times...')
+        t1 = time.time()
+        for _ in range(10):
+            _, regression, classification, anchors = model(x)
 
-        out = postprocess(x,
-                          anchors, regression, classification,
-                          regressBoxes, clipBoxes,
-                          threshold, iou_threshold)
-        out = invert_affine(framed_metas, out)
+            out = postprocess(x,
+                            anchors, regression, classification,
+                            regressBoxes, clipBoxes,
+                            threshold, iou_threshold)
+            out = invert_affine(framed_metas, out)
 
-    t2 = time.time()
-    tact_time = (t2 - t1) / 10
-    print(f'{tact_time} seconds, {1 / tact_time} FPS, @batch_size 1')
+        t2 = time.time()
+        tact_time = (t2 - t1) / 10
+        print(f'{tact_time} seconds, {1 / tact_time} FPS, @batch_size 1')
 
-    # uncomment this if you want a extreme fps test
-    # print('test2: model inferring only')
-    # print('inferring images for batch_size 32 for 10 times...')
-    # t1 = time.time()
-    # x = torch.cat([x] * 32, 0)
-    # for _ in range(10):
-    #     _, regression, classification, anchors = model(x)
-    #
-    # t2 = time.time()
-    # tact_time = (t2 - t1) / 10
-    # print(f'{tact_time} seconds, {32 / tact_time} FPS, @batch_size 32')
+        # uncomment this if you want a extreme fps test
+        # print('test2: model inferring only')
+        # print('inferring images for batch_size 32 for 10 times...')
+        # t1 = time.time()
+        # x = torch.cat([x] * 32, 0)
+        # for _ in range(10):
+        #     _, regression, classification, anchors = model(x)
+        #
+        # t2 = time.time()
+        # tact_time = (t2 - t1) / 10
+        # print(f'{tact_time} seconds, {32 / tact_time} FPS, @batch_size 32')
