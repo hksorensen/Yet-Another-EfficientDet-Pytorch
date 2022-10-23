@@ -17,8 +17,8 @@ dependencies = [
   "tqdm",
   "torch",
   "torchvision",
-  "webcolors',
-]
+  "webcolors"
+  ]
 
 [project.urls]
 "Homepage" = "www.dh4pmp.dk"
